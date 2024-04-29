@@ -74,14 +74,14 @@ const navigateToCreateAccount = () => {
             </div>
           </div>
 
+          <Button type="submit" class="mt-2 w-full"> Create an account </Button>
           <Button
             @click="navigateToCreateAccount"
-            type="submit"
-            class="mt-2 w-full"
+            variant="outline"
+            class="w-full"
           >
-            Create an account
+            Log In
           </Button>
-          <!-- <Button variant="outline" class="w-full"> Sign In </Button> -->
         </div>
       </CardContent>
     </Card>

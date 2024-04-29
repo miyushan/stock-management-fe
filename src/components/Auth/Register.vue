@@ -9,6 +9,11 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import router from "@/router";
+
+const navigateToCreateAccount = () => {
+  router.push("/auth/login");
+};
 </script>
 
 <template>
@@ -69,7 +74,13 @@ import { Label } from "@/components/ui/label";
             </div>
           </div>
 
-          <Button type="submit" class="mt-2 w-full"> Create an account </Button>
+          <Button
+            @click="navigateToCreateAccount"
+            type="submit"
+            class="mt-2 w-full"
+          >
+            Create an account
+          </Button>
           <!-- <Button variant="outline" class="w-full"> Sign In </Button> -->
         </div>
       </CardContent>

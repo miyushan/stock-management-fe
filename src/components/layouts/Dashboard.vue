@@ -3,7 +3,12 @@ import { Lightbulb, Database, CircleUser } from "lucide-vue-next";
 
 import { reactive } from "vue";
 import { RouterLink } from "vue-router";
-// import Header from "@/components/Header.vue";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useProfileStore } from "@/lib/useProfileStore";
+import router from "@/router";
+
+const { resetProfileInfo } = useProfileStore();
 
 const sideBarItems = reactive([
   {
@@ -23,6 +28,11 @@ const sideBarItems = reactive([
     href: "/historical-data",
   },
 ]);
+
+const logOutClick = () => {
+  resetProfileInfo();
+  router.push({ path: "/auth/login", replace: true });
+};
 </script>
 
 <template>
@@ -32,16 +42,16 @@ const sideBarItems = reactive([
     <div class="hidden border-r bg-muted/40 md:block">
       <div class="flex h-full max-h-screen flex-col gap-2">
         <div class="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-          <a href="/" class="flex items-center gap-2 font-semibold">
+          <div class="flex items-center gap-2 font-semibold">
             <span class="text-lg font-bold">Stock Pro</span>
-          </a>
+          </div>
           <!-- <Button variant="outline" size="icon" class="ml-auto h-8 w-8">
             <Bell class="h-4 w-4" />
             <span class="sr-only">Toggle notifications</span>
           </Button> -->
         </div>
 
-        <div class="flex-1">
+        <div class="flex-1 flex flex-col">
           <nav
             class="grid items-start px-2 text-sm font-medium lg:px-4 lg:py-4"
           >
@@ -55,32 +65,31 @@ const sideBarItems = reactive([
               {{ sideBarItem.text }}
             </RouterLink>
           </nav>
+
+          <div class="flex-1 content-end p-4">
+            <Card>
+              <!-- <CardHeader class="p-2 pt-0 md:p-4">
+                <CardTitle>Upgrade to Pro</CardTitle>
+                <CardDescription>
+                  Unlock all features and get unlimited access to our support
+                  team.
+                </CardDescription>
+              </CardHeader> -->
+              <CardContent class="p-2 pt-0 md:p-4">
+                <Button @click.prevent="logOutClick" size="sm" class="w-full">
+                  Log Out
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="flex flex-col">
-      <div class="p-4">
+      <div class="p-6 min-h-full">
         <router-view />
       </div>
-      <!-- <main class="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-        <div class="flex items-center">
-          <h1 class="text-lg font-semibold md:text-2xl">Inventory</h1>
-        </div>
-        <div
-          class="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm"
-        >
-          <div class="flex flex-col items-center gap-1 text-center">
-            <h3 class="text-2xl font-bold tracking-tight">
-              You have no products
-            </h3>
-            <p class="text-sm text-muted-foreground">
-              You can start selling as soon as you add a product.
-            </p>
-            <Button class="mt-4"> Add Product </Button>
-          </div>
-        </div>
-      </main> -->
     </div>
   </div>
 </template>

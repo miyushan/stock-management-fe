@@ -9,6 +9,27 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useProfileStore } from "@/lib/useProfileStore";
+import router from "@/router";
+import { ref } from "vue";
+import { useRoute } from "vue-router";
+
+const { setProfileInfo } = useProfileStore();
+const route = useRoute();
+
+const loginClick = () => {
+  setProfileInfo("Shane");
+
+  const redirectUrl = ref("/profile-info");
+  if (route.query.redirect) {
+    redirectUrl.value = route.query.redirect as string;
+  }
+  router.push(redirectUrl.value);
+};
+
+const navigateToCreateAccount = () => {
+  router.push("/auth/register");
+};
 </script>
 
 <template>
@@ -40,8 +61,16 @@ import { Label } from "@/components/ui/label";
             </div>
             <Input id="password" type="password" required />
           </div>
-          <Button type="submit" class="mt-2 w-full"> Login </Button>
-          <Button variant="outline" class="w-full"> Create Account </Button>
+          <Button @click.prevent="loginClick" type="submit" class="mt-2 w-full">
+            Login
+          </Button>
+          <Button
+            @click.prevent="navigateToCreateAccount"
+            variant="outline"
+            class="w-full"
+          >
+            Create Account
+          </Button>
         </div>
       </CardContent>
     </Card>

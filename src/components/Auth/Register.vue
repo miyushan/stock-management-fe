@@ -1,3 +1,16 @@
+<script setup lang="ts">
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+</script>
+
 <template>
   <div class="min-h-screen flex items-center content-center">
     <Card class="mx-auto w-[600px]">
@@ -63,30 +76,3 @@
     </Card>
   </div>
 </template>
-
-<script>
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
-export default {
-  name: "Register",
-  components: {
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    Input,
-    Label,
-  },
-};
-</script>

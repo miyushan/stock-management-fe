@@ -1,3 +1,30 @@
+<script setup lang="ts">
+import { Lightbulb, Database, CircleUser } from "lucide-vue-next";
+
+import { reactive } from "vue";
+import { RouterLink } from "vue-router";
+// import Header from "@/components/Header.vue";
+
+const sideBarItems = reactive([
+  {
+    icon: CircleUser,
+    text: "Profile",
+    href: "/profile-info",
+  },
+  {
+    icon: Lightbulb,
+    text: "Stock Predictions",
+    href: "/stock-predictions",
+    badge: 6,
+  },
+  {
+    icon: Database,
+    text: "Historical Data",
+    href: "/historical-data",
+  },
+]);
+</script>
+
 <template>
   <div
     class="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]"
@@ -57,99 +84,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import {
-  Lightbulb,
-  Bell,
-  Database,
-  CircleUser,
-  Home,
-  LineChart,
-  Menu,
-  Package,
-  Package2,
-  Search,
-  ShoppingCart,
-  Users,
-} from "lucide-vue-next";
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { reactive } from "vue";
-import { RouterLink } from "vue-router";
-// import Header from "@/components/Header.vue";
-
-export default {
-  name: "Dashboard",
-  components: {
-    Bell,
-    CircleUser,
-    Home,
-    LineChart,
-    Menu,
-    Package,
-    Package2,
-    Search,
-    ShoppingCart,
-    Users,
-    Badge,
-    Button,
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-    Input,
-    Sheet,
-    SheetContent,
-    SheetTrigger,
-    // Header,
-  },
-  setup() {
-    const sideBarItems = reactive([
-      {
-        icon: CircleUser,
-        text: "Profile",
-        href: "/profile-info",
-      },
-      {
-        icon: Lightbulb,
-        text: "Stock Predictions",
-        href: "/stock-predictions",
-        badge: 6,
-      },
-      {
-        icon: Database,
-        text: "Historical Data",
-        href: "/historical-data",
-      },
-    ]);
-
-    return { sideBarItems };
-  },
-};
-</script>

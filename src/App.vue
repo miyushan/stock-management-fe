@@ -1,9 +1,5 @@
+<script setup lang="ts"></script>
+
 <template>
   <RouterView />
 </template>
-
-<script>
-export default {
-  name: "App",
-};
-</script>

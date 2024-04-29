@@ -1,9 +1,5 @@
+<script setup lang="ts"></script>
+
 <template>
   <div>HistoricalData</div>
 </template>
-
-<script>
-export default {
-  name: "HistoricalData",
-};
-</script>

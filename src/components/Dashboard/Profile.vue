@@ -1,9 +1,5 @@
+<script setup lang="ts"></script>
+
 <template>
   <div>Profile</div>
 </template>
-
-<script>
-export default {
-  name: "Profile",
-};
-</script>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Lightbulb, Database, CircleUser } from "lucide-vue-next";
+import { Microscope, Database, CircleUser, LineChart } from "lucide-vue-next";
 
 import { reactive } from "vue";
 import { RouterLink } from "vue-router";
@@ -17,15 +17,21 @@ const sideBarItems = reactive([
     href: "/profile-info",
   },
   {
-    icon: Lightbulb,
-    text: "Stock Predictions",
-    href: "/stock-predictions",
+    icon: LineChart,
+    text: "Stock Analysis",
+    href: "/stock-analysis",
+    badge: 6,
+  },
+  {
+    icon: Microscope,
+    text: "Stock Prediction",
+    href: "/stock-prediction",
     badge: 6,
   },
   {
     icon: Database,
-    text: "Historical Data",
-    href: "/historical-data",
+    text: "Database",
+    href: "/database",
   },
 ]);
 

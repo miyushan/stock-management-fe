@@ -3,8 +3,9 @@ import Auth from "@/components/layouts/Auth.vue";
 import LogIn from "@/components/Auth/LogIn.vue";
 import Register from "@/components/Auth/Register.vue";
 import Profile from "@/components/Dashboard/Profile.vue";
-import StockPredictions from "@/components/Dashboard/StockPredictions.vue";
-import HistoricalData from "@/components/Dashboard/HistoricalData.vue";
+import StockPrediction from "@/components/Dashboard/StockPrediction.vue";
+import StockAnalysis from "@/components/Dashboard/StockAnalysis.vue";
+import Database from "@/components/Dashboard/Database.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { useProfileStore } from "@/lib/useProfileStore";
 
@@ -18,8 +19,9 @@ const routes = [
     children: [
       { path: "", redirect: "profile-info" },
       { path: "profile-info", component: Profile },
-      { path: "stock-predictions", component: StockPredictions },
-      { path: "historical-data", component: HistoricalData },
+      { path: "stock-analysis", component: StockAnalysis },
+      { path: "stock-prediction", component: StockPrediction },
+      { path: "database", component: Database },
     ],
   },
   {

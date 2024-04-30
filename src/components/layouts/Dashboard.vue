@@ -2,13 +2,13 @@
 import { Microscope, Database, CircleUser, LineChart } from "lucide-vue-next";
 
 import { reactive } from "vue";
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useProfileStore } from "@/lib/useProfileStore";
-import router from "@/router";
 
-const { resetProfileInfo } = useProfileStore();
+const router = useRouter();
+const { resetProfileInfo, isAdminUser } = useProfileStore();
 
 const sideBarItems = reactive([
   {
@@ -20,13 +20,11 @@ const sideBarItems = reactive([
     icon: LineChart,
     text: "Stock Analysis",
     href: "/stock-analysis",
-    badge: 6,
   },
   {
     icon: Microscope,
     text: "Stock Prediction",
     href: "/stock-prediction",
-    badge: 6,
   },
   {
     icon: Database,
@@ -34,6 +32,10 @@ const sideBarItems = reactive([
     href: "/database",
   },
 ]);
+
+if (!isAdminUser) {
+  sideBarItems.pop();
+}
 
 const logOutClick = () => {
   resetProfileInfo();
@@ -62,13 +64,14 @@ const logOutClick = () => {
             class="grid items-start px-2 text-sm font-medium lg:px-4 lg:py-4"
           >
             <RouterLink
-              v-for="sideBarItem in sideBarItems"
-              :to="sideBarItem.href"
+              v-for="item in sideBarItems"
+              :key="item.href"
+              :to="item.href"
               class="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
               activeClass="bg-muted text-primary"
             >
-              <component :is="sideBarItem.icon" class="h-4 w-4" />
-              {{ sideBarItem.text }}
+              <component :is="item.icon" class="h-4 w-4" />
+              {{ item.text }}
             </RouterLink>
           </nav>
 

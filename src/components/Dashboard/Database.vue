@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 </script>
 
 <template>
@@ -11,11 +12,10 @@ import { Card, CardContent } from "@/components/ui/card";
       class="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm"
     >
       <Card>
-        <!-- <CardHeader>
-          <CardTitle>Recent Sales</CardTitle>
-        </CardHeader> -->
-        <CardContent class="pt-6 grid gap-8 md:min-w-[300px]"> </CardContent>
-      </Card>
+        <CardContent class="p-2 pt-0 md:p-4 min-w-[200px]">
+          <Button size="sm" class="w-full"> Upload Data </Button>
+        </CardContent></Card
+      >
     </div>
   </main>
 </template>

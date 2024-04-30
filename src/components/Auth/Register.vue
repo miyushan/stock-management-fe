@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import router from "@/router";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const navigateToCreateAccount = () => {
   router.push("/auth/login");

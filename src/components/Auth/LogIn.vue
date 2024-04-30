@@ -10,15 +10,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useProfileStore } from "@/lib/useProfileStore";
-import router from "@/router";
 import { ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const { setProfileInfo } = useProfileStore();
 const route = useRoute();
+const router = useRouter();
 
 const loginClick = () => {
-  setProfileInfo("Shane");
+  setProfileInfo("Shane", true);
 
   const redirectUrl = ref("/profile-info");
   if (route.query.redirect) {

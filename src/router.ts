@@ -21,7 +21,7 @@ const routes = [
       { path: "profile-info", component: Profile },
       { path: "stock-analysis", component: StockAnalysis },
       { path: "stock-prediction", component: StockPrediction },
-      { path: "database", component: Database },
+      { path: "database", component: Database, meta: { requiresAdmin: true } },
     ],
   },
   {
@@ -41,14 +41,22 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  const { isAdminUser } = useProfileStore();
+  const { isUserLoggedIn, isAdminUser } = useProfileStore();
 
-  if (to.meta.requiresAuth && !isAdminUser)
-    return {
-      path: "/auth/login",
-      // save the location we were at to come back later
-      query: { redirect: to.fullPath },
-    };
+  if (to.meta.requiresAuth) {
+    if (!isUserLoggedIn) {
+      // If user is not logged in, redirect to login
+      return {
+        path: "/auth/login",
+        query: { redirect: to.fullPath },
+      };
+    } else if (to.meta.requiresAdmin && !isAdminUser) {
+      // If user is logged in but not admin, redirect to profile
+      return {
+        path: "/profile-info",
+      };
+    }
+  }
 });
 
 export default router;

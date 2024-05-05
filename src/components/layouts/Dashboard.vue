@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useProfileStore } from "@/lib/useProfileStore";
+import { useProfileStore } from "@/store/useProfileStore";
 import { useToast } from "vue-toastification";
 
 const router = useRouter();

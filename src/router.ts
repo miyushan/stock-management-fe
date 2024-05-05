@@ -7,7 +7,7 @@ import StockPrediction from "@/components/Dashboard/StockPrediction.vue";
 import StockAnalysis from "@/components/Dashboard/StockAnalysis.vue";
 import Database from "@/components/Dashboard/Database.vue";
 import { createRouter, createWebHistory } from "vue-router";
-import { useProfileStore } from "@/lib/useProfileStore";
+import { useProfileStore } from "@/store/useProfileStore";
 import RegisterAdmin from "./components/Auth/RegisterAdmin.vue";
 
 const routes = [

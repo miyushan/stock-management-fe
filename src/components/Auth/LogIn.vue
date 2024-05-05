@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useProfileStore } from "@/lib/useProfileStore";
+import { useProfileStore } from "@/store/useProfileStore";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
@@ -41,6 +41,12 @@ const logInClick = handleSubmit(async (value) => {
       `${import.meta.env.VITE_SERVER_URL}/user/login`,
       {
         ...value,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "Access-Control-Allow-Origin": import.meta.env.VITE_SERVER_URL,
+        },
       }
     );
     console.log(response.data);

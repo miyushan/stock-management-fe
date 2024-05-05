@@ -15,7 +15,7 @@ import { useForm, useField } from "vee-validate";
 import { z } from "zod";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useToast } from "vue-toastification";
-import { useProfileStore } from "@/lib/useProfileStore";
+import { useProfileStore } from "@/store/useProfileStore";
 
 const { isAdminUser } = useProfileStore();
 const router = useRouter();

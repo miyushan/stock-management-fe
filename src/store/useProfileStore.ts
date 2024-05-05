@@ -2,9 +2,9 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 
 export const useProfileStore = defineStore("profile", () => {
-  const userName = ref("");
-  const isLoggedIn = ref(false);
-  const isAdmin = ref(false);
+  const userName = ref<string | null>(null);
+  const isLoggedIn = ref<boolean | null>(null);
+  const isAdmin = ref<boolean | null>(null);
 
   const isAdminUser = computed(() => isAdmin.value);
   const isUserLoggedIn = computed(() => isLoggedIn.value);
@@ -17,9 +17,9 @@ export const useProfileStore = defineStore("profile", () => {
   }
 
   function resetProfileInfo() {
-    userName.value = "";
-    isLoggedIn.value = false;
-    isAdmin.value = false;
+    userName.value = null;
+    isLoggedIn.value = null;
+    isAdmin.value = null;
   }
 
   return {

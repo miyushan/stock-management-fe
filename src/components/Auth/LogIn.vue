@@ -37,14 +37,18 @@ const { value: password } = useField<string>("password");
 
 const logInClick = handleSubmit(async (value) => {
   try {
-    const response = await axios.post("http://localhost:1922/user/login", {
-      ...value,
-    });
+    const response = await axios.post(
+      `${import.meta.env.VITE_SERVER_URL}/user/login`,
+      {
+        ...value,
+      }
+    );
     console.log(response.data);
-    setProfileInfo("testUser", true);
+    setProfileInfo("Shane Watson", true);
     toast.success("You have successfully logged in");
     redirectToAuthViews();
   } catch (error) {
+    toast.error("Invalid email or password");
     console.error(error);
   }
 });

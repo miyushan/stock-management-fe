@@ -8,6 +8,7 @@ export const useProfileStore = defineStore("profile", () => {
 
   const isAdminUser = computed(() => isAdmin.value);
   const isUserLoggedIn = computed(() => isLoggedIn.value);
+  const getUserName = computed(() => userName.value);
 
   function setProfileInfo(name: string, admin: boolean) {
     userName.value = name;
@@ -26,5 +27,6 @@ export const useProfileStore = defineStore("profile", () => {
     isUserLoggedIn,
     setProfileInfo,
     resetProfileInfo,
+    getUserName,
   };
 });

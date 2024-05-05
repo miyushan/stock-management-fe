@@ -15,7 +15,9 @@ import { useForm, useField } from "vee-validate";
 import { z } from "zod";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useToast } from "vue-toastification";
+import { useProfileStore } from "@/lib/useProfileStore";
 
+const { isAdminUser } = useProfileStore();
 const router = useRouter();
 const toast = useToast();
 
@@ -45,10 +47,13 @@ const { value: address_3 } = useField<string>("address_3");
 
 const createUserAccount = handleSubmit(async (value) => {
   try {
-    const response = await axios.post("http://localhost:1922/user/register", {
-      ...value,
-      user_type: "customer",
-    });
+    const response = await axios.post(
+      `${import.meta.env.VITE_SERVER_URL}/user/register`,
+      {
+        ...value,
+        user_type: "customer",
+      }
+    );
     console.log(response.data);
     toast.success("You have successfully created an account");
     navigateToLogin();
@@ -59,6 +64,10 @@ const createUserAccount = handleSubmit(async (value) => {
 
 const navigateToLogin = () => {
   router.push("/auth/login");
+};
+
+const navigateToCreateAdminAccount = () => {
+  router.push("/auth/register-admin");
 };
 </script>
 
@@ -182,6 +191,15 @@ const navigateToLogin = () => {
           </div>
 
           <Button type="submit" class="mt-2 w-full"> Create an account </Button>
+          <Button
+            v-if="isAdminUser"
+            @click.prevent="navigateToCreateAdminAccount"
+            type="submit"
+            variant="outline"
+            class="mt-2 w-full"
+          >
+            Create an admin account
+          </Button>
           <Button
             @click.prevent="navigateToLogin"
             variant="outline"

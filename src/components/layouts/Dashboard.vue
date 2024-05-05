@@ -1,14 +1,28 @@
 <script setup lang="ts">
-import { Microscope, Database, CircleUser, LineChart } from "lucide-vue-next";
-
+import {
+  ChevronDown,
+  Microscope,
+  Database,
+  CircleUser,
+  LineChart,
+} from "lucide-vue-next";
 import { reactive } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useProfileStore } from "@/lib/useProfileStore";
+import { useToast } from "vue-toastification";
 
 const router = useRouter();
-const { resetProfileInfo, isAdminUser } = useProfileStore();
+const { resetProfileInfo, isAdminUser, getUserName } = useProfileStore();
+const toast = useToast();
 
 const sideBarItems = reactive([
   {
@@ -37,8 +51,9 @@ if (!isAdminUser) {
   sideBarItems.pop();
 }
 
-const logOutClick = () => {
+const onClickLogout = () => {
   resetProfileInfo();
+  toast.warning("You have successfully logged out");
   router.push({ path: "/auth/login", replace: true });
 };
 </script>
@@ -84,10 +99,36 @@ const logOutClick = () => {
                   team.
                 </CardDescription>
               </CardHeader> -->
-              <CardContent class="p-2 pt-0 md:p-4">
-                <Button @click.prevent="logOutClick" size="sm" class="w-full">
-                  Log Out
-                </Button>
+
+              <CardContent class="p-2 pt-0 md:p-4 space-x-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger as-child>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      class="rounded-full w-full flex items-center justify-between px-2"
+                    >
+                      <div class="flex items-center space-x-2">
+                        <CircleUser class="h-5 w-5" />
+                        <div class="text-sm font-medium">{{ getUserName }}</div>
+                      </div>
+                      <ChevronDown class="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem v-if="isAdminUser">
+                      <RouterLink to="/auth/register-admin"
+                        >Create an admin account</RouterLink
+                      ></DropdownMenuItem
+                    >
+                    <DropdownMenuSeparator v-if="isAdminUser" />
+                    <DropdownMenuItem
+                      class="cursor-pointer"
+                      @click.prevent="onClickLogout"
+                      >Logout</DropdownMenuItem
+                    >
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </CardContent>
             </Card>
           </div>

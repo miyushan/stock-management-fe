@@ -45,7 +45,7 @@ const createUserAccount = handleSubmit(async (value) => {
   try {
     const response = await axios.post("http://localhost:1922/user/register", {
       ...value,
-      user_type: "customer",
+      user_type: "admin",
     });
     console.log(response.data);
   } catch (error) {
@@ -62,13 +62,13 @@ const navigateToCreateAccount = () => {
   <div class="min-h-screen flex items-center content-center">
     <Card class="mx-auto w-[600px]">
       <CardHeader>
-        <CardTitle class="text-xl"> Register </CardTitle>
+        <CardTitle class="text-xl"> Register Admin </CardTitle>
         <CardDescription>
           Enter your information to create an account
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form class="grid gap-4" @submit="createUserAccount">
+        <form class="grid gap-4" @submit.prevent="createUserAccount">
           <div class="grid grid-cols-2 gap-4">
             <div>
               <Label for="first-name" class="mb-4">First name</Label>

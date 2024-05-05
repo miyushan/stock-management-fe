@@ -8,6 +8,7 @@ import StockAnalysis from "@/components/Dashboard/StockAnalysis.vue";
 import Database from "@/components/Dashboard/Database.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import { useProfileStore } from "@/lib/useProfileStore";
+import RegisterAdmin from "./components/Auth/RegisterAdmin.vue";
 
 const routes = [
   {
@@ -27,10 +28,23 @@ const routes = [
   {
     path: "/auth",
     component: Auth,
-    meta: { requiresAuth: false },
     children: [
       { path: "login", component: LogIn },
       { path: "register", component: Register },
+    ],
+  },
+  {
+    path: "/auth",
+    component: Auth,
+    meta: {
+      requiresAuth: true,
+    },
+    children: [
+      {
+        path: "register-admin",
+        component: RegisterAdmin,
+        meta: { requiresAdmin: true },
+      },
     ],
   },
 ];

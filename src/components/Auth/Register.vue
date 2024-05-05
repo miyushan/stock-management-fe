@@ -14,8 +14,10 @@ import axios from "axios";
 import { useForm, useField } from "vee-validate";
 import { z } from "zod";
 import { toTypedSchema } from "@vee-validate/zod";
+import { useToast } from "vue-toastification";
 
 const router = useRouter();
+const toast = useToast();
 
 const validationSchema = toTypedSchema(
   z.object({
@@ -48,12 +50,14 @@ const createUserAccount = handleSubmit(async (value) => {
       user_type: "customer",
     });
     console.log(response.data);
+    toast.success("You have successfully created an account");
+    navigateToLogin();
   } catch (error) {
     console.error(error);
   }
 });
 
-const navigateToCreateAccount = () => {
+const navigateToLogin = () => {
   router.push("/auth/login");
 };
 </script>
@@ -71,7 +75,7 @@ const navigateToCreateAccount = () => {
         <form class="grid gap-4" @submit="createUserAccount">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <Label for="first-name" class="mb-4">First name</Label>
+              <Label for="first-name">First name</Label>
               <Input
                 class="mt-0.5"
                 name="first_name"
@@ -106,7 +110,7 @@ const navigateToCreateAccount = () => {
                 v-model="email"
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="yourmail@gmail.com"
                 required
               /><span v-if="errors.email" class="text-xs text-red-500">{{
                 errors.email
@@ -179,7 +183,7 @@ const navigateToCreateAccount = () => {
 
           <Button type="submit" class="mt-2 w-full"> Create an account </Button>
           <Button
-            @click="navigateToCreateAccount"
+            @click.prevent="navigateToLogin"
             variant="outline"
             class="w-full"
           >

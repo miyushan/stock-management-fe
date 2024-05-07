@@ -39,9 +39,7 @@ const logInClick = handleSubmit(async (value) => {
   try {
     const response = await axios.post(
       `${import.meta.env.VITE_SERVER_URL}/user/login`,
-      {
-        ...value,
-      },
+      value,
       {
         withCredentials: true,
         headers: {
@@ -49,13 +47,15 @@ const logInClick = handleSubmit(async (value) => {
         },
       }
     );
-    console.log(response.data);
-    setProfileInfo("Shane Watson", true);
+    const profileName =
+      response.data.first_name + " " + response.data.last_name;
+    const isAdmin = response.data.user_type === "admin";
+
+    setProfileInfo(profileName, isAdmin);
     toast.success("You have successfully logged in");
     redirectToAuthViews();
   } catch (error) {
     toast.error("Invalid email or password");
-    console.error(error);
   }
 });
 

@@ -4,6 +4,7 @@ import LogIn from "@/components/Auth/LogIn.vue";
 import Register from "@/components/Auth/Register.vue";
 import Profile from "@/components/Dashboard/Profile.vue";
 import StockPrediction from "@/components/Dashboard/StockPrediction.vue";
+import PurchasedStocks from "@/components/Dashboard/PurchasedStocks.vue";
 import StockAnalysis from "@/components/Dashboard/StockAnalysis.vue";
 import Database from "@/components/Dashboard/Database.vue";
 import { createRouter, createWebHistory } from "vue-router";
@@ -20,6 +21,7 @@ const routes = [
     children: [
       { path: "", redirect: "profile-info" },
       { path: "profile-info", component: Profile },
+      { path: "purchased-stocks", component: PurchasedStocks },
       { path: "stock-analysis", component: StockAnalysis },
       { path: "stock-prediction", component: StockPrediction },
       { path: "database", component: Database, meta: { requiresAdmin: true } },

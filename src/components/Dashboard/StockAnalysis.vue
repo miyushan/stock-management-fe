@@ -1,36 +1,34 @@
 <script setup lang="ts">
-import { reactive } from "vue";
 import {
   Select,
+  SelectGroup,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type Ref, ref, watch } from "vue";
-import {
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-vue-next";
+import { computed, ref, reactive } from "vue";
 import {
   CalendarDate,
-  type DateValue,
-  isEqualMonth,
+  DateFormatter,
+  getLocalTimeZone,
+  parseDate,
+  today,
 } from "@internationalized/date";
-
-import { type DateRange, RangeCalendarRoot, useDateFormatter } from "radix-vue";
-import { type Grid, createMonth, toDate } from "radix-vue/date";
+import { toDate } from "radix-vue/date";
+import { Calendar as CalendarIcon } from "lucide-vue-next";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import { z } from "zod";
+import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
 import {
-  RangeCalendarCell,
-  RangeCalendarCellTrigger,
-  RangeCalendarGrid,
-  RangeCalendarGridBody,
-  RangeCalendarGridHead,
-  RangeCalendarGridRow,
-  RangeCalendarHeadCell,
-} from "@/components/ui/range-calendar";
-import { Button, buttonVariants } from "@/components/ui/button";
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
@@ -39,65 +37,15 @@ import {
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { onMounted } from "vue";
+import { useToast } from "vue-toastification";
+import { CompanyType, RecordType } from "@/lib/types";
 
-type CompanyType = {
-  id: number;
-  company_name: string;
+export type StockType = {
+  date: string;
+  value: number;
 };
 
-const loading = ref(false);
-const error = ref<string | null>(null);
-const availableCompanies = ref<CompanyType[]>([]);
-
-onMounted(fetchCompaniesForSelect);
-
-async function fetchCompaniesForSelect() {
-  loading.value = true;
-
-  try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_SERVER_URL}/company/select`,
-      {
-        withCredentials: true,
-        headers: {
-          "Access-Control-Allow-Origin": import.meta.env.VITE_SERVER_URL,
-        },
-      }
-    );
-    availableCompanies.value = response.data;
-    console.log(availableCompanies.value);
-
-    // profileInfo.value = response.data;
-  } catch (err) {
-    error.value = "An error occurred while fetching data.";
-  } finally {
-    loading.value = false;
-  }
-}
-
-async function fetchHistoricalData() {
-  loading.value = true;
-
-  try {
-    const response = await axios.get(
-      `${import.meta.env.VITE_SERVER_URL}/company/select`,
-      {
-        withCredentials: true,
-        headers: {
-          "Access-Control-Allow-Origin": import.meta.env.VITE_SERVER_URL,
-        },
-      }
-    );
-    availableCompanies.value = response.data;
-    console.log(availableCompanies.value);
-
-    // profileInfo.value = response.data;
-  } catch (err) {
-    error.value = "An error occurred while fetching data.";
-  } finally {
-    loading.value = false;
-  }
-}
+const toast = useToast();
 
 const chartOptions = reactive({
   chart: {
@@ -153,82 +101,114 @@ const chartOptions = reactive({
   },
 });
 
+const df = new DateFormatter("en-US", {
+  dateStyle: "long",
+});
+
+const validationSchema = toTypedSchema(
+  z.object({
+    companyId: z.string({
+      required_error: "Please select a company",
+    }),
+    type: z.string(),
+    startDate: z
+      .string()
+      .refine((v) => v, { message: "Start Date is required." }),
+    endDate: z.string().refine((v) => v, { message: "End Date is required." }),
+  })
+);
+
+const { handleSubmit, setValues, values } = useForm({
+  validationSchema,
+  initialValues: {
+    type: "close",
+    startDate: "2024-03-20",
+    endDate: "2024-04-22",
+  },
+});
+
+const startDate = computed({
+  get: () => (values.startDate ? parseDate(values.startDate) : undefined),
+  set: (val) => val,
+});
+
+const endDate = computed({
+  get: () => (values.endDate ? parseDate(values.endDate) : undefined),
+  set: (val) => val,
+});
+
+const loading = ref(false);
+const error = ref<string | null>(null);
+const availableCompanies = ref<CompanyType[]>([]);
+const availableTypes = ref<RecordType[]>([
+  { id: 0, type_name: "open" },
+  { id: 1, type_name: "close" },
+  { id: 2, type_name: "high" },
+  { id: 3, type_name: "low" },
+]);
 const series = reactive([
   {
-    data: [
-      {
-        x: 0,
-        y: 0,
-      },
-      {
-        x: 0,
-        y: 0,
-      },
-    ],
+    data: [],
   },
 ]);
 
-const value = ref({
-  start: new CalendarDate(2022, 1, 20),
-  end: new CalendarDate(2022, 1, 20).add({ days: 20 }),
-}) as Ref<DateRange>;
+onMounted(fetchCompaniesForSelect);
 
-const locale = ref("en-US");
-const formatter = useDateFormatter(locale.value);
+async function fetchCompaniesForSelect() {
+  loading.value = true;
 
-const placeholder = ref(value.value.start) as Ref<DateValue>;
-const secondMonthPlaceholder = ref(value.value.end) as Ref<DateValue>;
-
-const firstMonth = ref(
-  createMonth({
-    dateObj: placeholder.value,
-    locale: locale.value,
-    fixedWeeks: true,
-    weekStartsOn: 0,
-  })
-) as Ref<Grid<DateValue>>;
-const secondMonth = ref(
-  createMonth({
-    dateObj: secondMonthPlaceholder.value,
-    locale: locale.value,
-    fixedWeeks: true,
-    weekStartsOn: 0,
-  })
-) as Ref<Grid<DateValue>>;
-
-function updateMonth(reference: "first" | "second", months: number) {
-  if (reference === "first") {
-    placeholder.value = placeholder.value.add({ months });
-  } else {
-    secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({
-      months,
-    });
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_SERVER_URL}/company/select`,
+      {
+        withCredentials: true,
+        headers: {
+          "Access-Control-Allow-Origin": import.meta.env.VITE_SERVER_URL,
+        },
+      }
+    );
+    availableCompanies.value = response.data;
+  } catch (err) {
+    error.value = "An error occurred while fetching data.";
+  } finally {
+    loading.value = false;
   }
 }
 
-watch(placeholder, (_placeholder) => {
-  firstMonth.value = createMonth({
-    dateObj: _placeholder,
-    weekStartsOn: 0,
-    fixedWeeks: false,
-    locale: locale.value,
-  });
-  if (isEqualMonth(secondMonthPlaceholder.value, _placeholder)) {
-    secondMonthPlaceholder.value = secondMonthPlaceholder.value.add({
-      months: 1,
-    });
-  }
-});
+const fetchHistoricalData = handleSubmit(async (value) => {
+  loading.value = true;
 
-watch(secondMonthPlaceholder, (_secondMonthPlaceholder) => {
-  secondMonth.value = createMonth({
-    dateObj: _secondMonthPlaceholder,
-    weekStartsOn: 0,
-    fixedWeeks: false,
-    locale: locale.value,
-  });
-  if (isEqualMonth(_secondMonthPlaceholder, placeholder.value))
-    placeholder.value = placeholder.value.subtract({ months: 1 });
+  if (value.startDate >= value.endDate) {
+    toast.warning("End date should be greater than start date");
+    return;
+  }
+
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_SERVER_URL}/historical/get_by_company_id/range`,
+      {
+        params: {
+          company_id: parseInt(value.companyId),
+          from_date: value.startDate,
+          to_date: value.endDate,
+          record_type: value.type,
+        },
+        withCredentials: true,
+        headers: {
+          "Access-Control-Allow-Origin": import.meta.env.VITE_SERVER_URL,
+        },
+      }
+    );
+    series[0].data = response.data.map((stock: StockType) => ({
+      x: new Date(stock.date).getTime(),
+      y: stock.value,
+    }));
+    console.log(series[0].data.length);
+  } catch (err) {
+    error.value = "An error occurred while fetching data.";
+  } finally {
+    loading.value = false;
+  }
 });
 </script>
 
@@ -238,229 +218,164 @@ watch(secondMonthPlaceholder, (_secondMonthPlaceholder) => {
       <h1 class="text-lg font-semibold md:text-2xl">Stock Analysis</h1>
     </div>
     <div
-      class="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm"
+      class="flex-1 flex flex-col items-center p-6 rounded-lg border border-dashed shadow-sm"
     >
-      <div id="chart" class="min-w-[900px]">
-        <div class="flex items-center justify-start space-x-2 mb-8">
-          <Select>
-            <SelectTrigger
-              id="company"
-              class="items-start [&_[data-description]]:hidden"
-            >
-              <SelectValue placeholder="Select a company" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem
-                v-for="comp in availableCompanies"
-                :key="comp.id"
-                :value="comp.company_name"
-              >
-                <div class="flex items-start text-muted-foreground">
-                  <Rabbit class="" />
-                  <div class="grid gap-0.5">
-                    <p>{{ comp.company_name }}</p>
-                  </div>
-                </div>
-              </SelectItem>
-              <!-- <SelectItem value="select2">
-                  <div class="flex items-start text-muted-foreground">
-                    <Rabbit class="" />
-                    <div class="grid gap-0.5">
-                      <p>Shevron</p>
-                    </div>
-                  </div>
-                </SelectItem>
-                <SelectItem value="select3">
-                  <div class="flex items-start text-muted-foreground">
-                    <Rabbit class="" />
-                    <div class="grid gap-0.5">
-                      <p>Shevron</p>
-                    </div>
-                  </div>
-                </SelectItem> -->
-            </SelectContent>
-          </Select>
-
-          <Popover>
-            <PopoverTrigger as-child>
-              <Button
-                variant="outline"
-                :class="
-                  cn(
-                    'w-[280px] justify-start text-left font-normal',
-                    !value && 'text-muted-foreground'
-                  )
-                "
-              >
-                <CalendarIcon class="mr-2 h-4 w-4" />
-                <template v-if="value.start">
-                  <template v-if="value.end">
-                    {{
-                      formatter.custom(toDate(value.start), {
-                        dateStyle: "medium",
-                      })
-                    }}
-                    -
-                    {{
-                      formatter.custom(toDate(value.end), {
-                        dateStyle: "medium",
-                      })
-                    }}
-                  </template>
-
-                  <template v-else>
-                    {{
-                      formatter.custom(toDate(value.start), {
-                        dateStyle: "medium",
-                      })
-                    }}
-                  </template>
-                </template>
-                <template v-else> Pick a date </template>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent class="w-auto p-0">
-              <RangeCalendarRoot
-                v-slot="{ weekDays }"
-                v-model="value"
-                v-model:placeholder="placeholder"
-                class="p-3"
-              >
-                <div
-                  class="flex flex-col gap-y-4 mt-4 sm:flex-row sm:gap-x-4 sm:gap-y-0"
-                >
-                  <div class="flex flex-col gap-4">
-                    <div class="flex items-center justify-between">
-                      <button
-                        :class="
-                          cn(
-                            buttonVariants({ variant: 'outline' }),
-                            'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100'
-                          )
-                        "
-                        @click="updateMonth('first', -1)"
-                      >
-                        <ChevronLeft class="h-4 w-4" />
-                      </button>
-                      <div :class="cn('text-sm font-medium')">
-                        {{
-                          formatter.fullMonthAndYear(toDate(firstMonth.value))
-                        }}
-                      </div>
-                      <button
-                        :class="
-                          cn(
-                            buttonVariants({ variant: 'outline' }),
-                            'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100'
-                          )
-                        "
-                        @click="updateMonth('first', 1)"
-                      >
-                        <ChevronRight class="h-4 w-4" />
-                      </button>
-                    </div>
-                    <RangeCalendarGrid>
-                      <RangeCalendarGridHead>
-                        <RangeCalendarGridRow>
-                          <RangeCalendarHeadCell
-                            v-for="day in weekDays"
-                            :key="day"
-                            class="w-full"
-                          >
-                            {{ day }}
-                          </RangeCalendarHeadCell>
-                        </RangeCalendarGridRow>
-                      </RangeCalendarGridHead>
-                      <RangeCalendarGridBody>
-                        <RangeCalendarGridRow
-                          v-for="(weekDates, index) in firstMonth.rows"
-                          :key="`weekDate-${index}`"
-                          class="mt-2 w-full"
-                        >
-                          <RangeCalendarCell
-                            v-for="weekDate in weekDates"
-                            :key="weekDate.toString()"
-                            :date="weekDate"
-                          >
-                            <RangeCalendarCellTrigger
-                              :day="weekDate"
-                              :month="firstMonth.value"
-                            />
-                          </RangeCalendarCell>
-                        </RangeCalendarGridRow>
-                      </RangeCalendarGridBody>
-                    </RangeCalendarGrid>
-                  </div>
-                  <div class="flex flex-col gap-4">
-                    <div class="flex items-center justify-between">
-                      <button
-                        :class="
-                          cn(
-                            buttonVariants({ variant: 'outline' }),
-                            'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100'
-                          )
-                        "
-                        @click="updateMonth('second', -1)"
-                      >
-                        <ChevronLeft class="h-4 w-4" />
-                      </button>
-                      <div :class="cn('text-sm font-medium')">
-                        {{
-                          formatter.fullMonthAndYear(toDate(secondMonth.value))
-                        }}
-                      </div>
-
-                      <button
-                        :class="
-                          cn(
-                            buttonVariants({ variant: 'outline' }),
-                            'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100'
-                          )
-                        "
-                        @click="updateMonth('second', 1)"
-                      >
-                        <ChevronRight class="h-4 w-4" />
-                      </button>
-                    </div>
-                    <RangeCalendarGrid>
-                      <RangeCalendarGridHead>
-                        <RangeCalendarGridRow>
-                          <RangeCalendarHeadCell
-                            v-for="day in weekDays"
-                            :key="day"
-                            class="w-full"
-                          >
-                            {{ day }}
-                          </RangeCalendarHeadCell>
-                        </RangeCalendarGridRow>
-                      </RangeCalendarGridHead>
-                      <RangeCalendarGridBody>
-                        <RangeCalendarGridRow
-                          v-for="(weekDates, index) in secondMonth.rows"
-                          :key="`weekDate-${index}`"
-                          class="mt-2 w-full"
-                        >
-                          <RangeCalendarCell
-                            v-for="weekDate in weekDates"
-                            :key="weekDate.toString()"
-                            :date="weekDate"
-                          >
-                            <RangeCalendarCellTrigger
-                              :day="weekDate"
-                              :month="secondMonth.value"
-                            />
-                          </RangeCalendarCell>
-                        </RangeCalendarGridRow>
-                      </RangeCalendarGridBody>
-                    </RangeCalendarGrid>
-                  </div>
-                </div>
-              </RangeCalendarRoot>
-            </PopoverContent>
-          </Popover>
-          <Button @click="fetchHistoricalData">Analyze</Button>
+      <form
+        @submit.prevent="fetchHistoricalData"
+        class="w-full flex items-start justify-center space-x-2 mb-6 h-[95px]"
+      >
+        <div class="w-full max-w-[240px]">
+          <FormField v-slot="{ componentField }" name="companyId">
+            <FormItem class="flex flex-col">
+              <FormLabel>Company Name</FormLabel>
+              <Select v-bind="componentField">
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Company" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem
+                      v-for="company in availableCompanies"
+                      :key="company.id"
+                      :value="company.id.toString()"
+                    >
+                      {{ company.company_name }}
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          </FormField>
         </div>
 
+        <div class="w-full max-w-[150px]">
+          <FormField v-slot="{ componentField }" name="type">
+            <FormItem class="flex flex-col">
+              <FormLabel>Record Type</FormLabel>
+              <Select v-bind="componentField">
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select the type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem
+                      v-for="type in availableTypes"
+                      :key="type.id"
+                      :value="type.type_name"
+                    >
+                      {{ type.type_name }}
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </FormItem>
+          </FormField>
+        </div>
+
+        <FormField name="startDate">
+          <FormItem class="flex flex-col">
+            <FormLabel>Start Date</FormLabel>
+            <Popover>
+              <PopoverTrigger as-child>
+                <FormControl>
+                  <Button
+                    variant="outline"
+                    :class="
+                      cn(
+                        'w-[180px] ps-3 text-start font-normal',
+                        !startDate && 'text-muted-foreground'
+                      )
+                    "
+                  >
+                    <span>{{
+                      startDate ? df.format(toDate(startDate)) : "Pick a date"
+                    }}</span>
+                    <CalendarIcon class="ms-auto h-4 w-4 opacity-50" />
+                  </Button>
+                  <input hidden />
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent class="w-auto p-0">
+                <Calendar
+                  v-model="startDate"
+                  initial-focus
+                  :min-value="new CalendarDate(1900, 1, 1)"
+                  :max-value="today(getLocalTimeZone())"
+                  @update:model-value="
+                    (v) => {
+                      if (v) {
+                        setValues({
+                          startDate: v.toString(),
+                        });
+                      } else {
+                        setValues({
+                          startDate: '',
+                        });
+                      }
+                    }
+                  "
+                />
+              </PopoverContent>
+            </Popover>
+          </FormItem>
+        </FormField>
+
+        <FormField name="endDate">
+          <FormItem class="flex flex-col">
+            <FormLabel>End Date</FormLabel>
+            <Popover>
+              <PopoverTrigger as-child>
+                <FormControl>
+                  <Button
+                    variant="outline"
+                    :class="
+                      cn(
+                        'w-[180px] ps-3 text-start font-normal',
+                        !endDate && 'text-muted-foreground'
+                      )
+                    "
+                  >
+                    <span>{{
+                      endDate ? df.format(toDate(endDate)) : "Pick a date"
+                    }}</span>
+                    <CalendarIcon class="ms-auto h-4 w-4 opacity-50" />
+                  </Button>
+                  <input hidden />
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent class="w-auto p-0">
+                <Calendar
+                  v-model="endDate"
+                  initial-focus
+                  :min-value="new CalendarDate(1900, 1, 1)"
+                  :max-value="today(getLocalTimeZone())"
+                  @update:model-value="
+                    (v) => {
+                      if (v) {
+                        setValues({
+                          endDate: v.toString(),
+                        });
+                      } else {
+                        setValues({
+                          endDate: '',
+                        });
+                      }
+                    }
+                  "
+                />
+              </PopoverContent>
+            </Popover>
+          </FormItem>
+        </FormField>
+
+        <Button type="submit" class="mt-[22px]">Analyze</Button>
+      </form>
+      <div id="chart" class="w-full max-w-[900px]">
         <apexchart
           type="area"
           height="500"

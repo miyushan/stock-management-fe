@@ -5,6 +5,7 @@ import {
   Database,
   CircleUser,
   LineChart,
+  HardDrive,
 } from "lucide-vue-next";
 import { reactive } from "vue";
 import { RouterLink, useRouter } from "vue-router";
@@ -29,6 +30,11 @@ const sideBarItems = reactive([
     icon: CircleUser,
     text: "Profile",
     href: "/profile-info",
+  },
+  {
+    icon: HardDrive,
+    text: "Purchased Stocks",
+    href: "/purchased-stocks",
   },
   {
     icon: LineChart,
@@ -68,10 +74,6 @@ const onClickLogout = () => {
           <div class="flex items-center gap-2 font-semibold">
             <span class="text-lg font-bold">Stock Pro</span>
           </div>
-          <!-- <Button variant="outline" size="icon" class="ml-auto h-8 w-8">
-            <Bell class="h-4 w-4" />
-            <span class="sr-only">Toggle notifications</span>
-          </Button> -->
         </div>
 
         <div class="flex-1 flex flex-col">
